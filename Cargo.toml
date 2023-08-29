@@ -1,0 +1,18 @@
+[package]
+name = "img2kvm-rs"
+version = "0.1.0"
+edition = "2021"
+description = "A utility that convert disk image in Proxmox VE. Supported PC x86_64."
+
+[[bin]]
+name = "img2kvm"
+path = "src/main.rs"
+
+[dependencies]
+structopt = { version = "0.3", features = [ "paw" ] }
+paw = "1.0"
+dunce = "1.0"
+once_cell = "1.18"
+flate2 = "1.0"
+rust-lzma = "0.6"
+zip = "0.6"
