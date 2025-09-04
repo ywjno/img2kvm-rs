@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: "Create GitHub release"
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: x86_64-unknown-linux-gnu
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y liblzma-dev
+
+      - name: Build
+        run: cargo build --release --target x86_64-unknown-linux-gnu
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: img2kvm ${{ github.ref_name }}
+          body: |
+            ## img2kvm ${{ github.ref_name }}
+
+            A utility that converts disk images for Proxmox VE.
+
+            ### Usage
+            ```bash
+            img2kvm -n <IMAGE_FILE> -i <VM_ID> -s <STORAGE>
+            ```
+
+            ### Example
+            ```bash
+            img2kvm -n openwrt-24.10.2.img.gz -i 100 -s local-lvm
+            ```
+
+            ### Supported Formats
+            - `.img`, `.iso` (raw images)
+            - `.gz` (gzip compressed)
+            - `.xz` (xz compressed)
+            - `.lzma` (lzma compressed)
+            - `.bz2`, `.bzip2` (bzip2 compressed)
+            - `.zip` (zip archives)
+          files: |
+            ./target/x86_64-unknown-linux-gnu/release/img2kvm
+          draft: false
+          prerelease: false
